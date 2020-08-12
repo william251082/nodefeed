@@ -37,6 +37,13 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 }
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+}
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
@@ -45,6 +52,7 @@ var body_parser_1 = require("body-parser");
 var common_1 = require("@iceshoptickets/common");
 var new_1 = require("./routes/new");
 var routes_1 = require("./routes");
+var path = __importStar(require("path"));
 var app = express_1.default();
 exports.app = app;
 // make sure tht express is aware that it's behind a proxy of ingress-nginx and still trust it
@@ -55,6 +63,7 @@ app.use(body_parser_1.json());
 //         signed: false,
 //         secure: process.env.NODE_ENV !== 'test'
 //     }));
+app.use('/images', express_1.default.static(path.join(__dirname, 'images')));
 app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, PATCH, DELETE');

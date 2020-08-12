@@ -13,7 +13,10 @@ router.post('/api/feeds', [
     express_validator_1.body('title')
         .trim()
         .isLength({ min: 5 }),
-    express_validator_1.body('cotent')
+    express_validator_1.body('imageUrl')
+        .trim()
+        .isLength({ min: 5 }),
+    express_validator_1.body('content')
         .trim()
         .isLength({ min: 5 })
 ], common_1.validateRequest, feed_1.createPost);

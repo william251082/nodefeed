@@ -36,29 +36,21 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
+var feed_1 = require("../models/feed");
 exports.getPosts = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
     var feeds, err_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 2, , 3]);
-                return [4 /*yield*/, {
-                        posts: [
-                            {
-                                _id: '4264u',
-                                title: '4264u',
-                                content: '4264u',
-                                imageUrl: 'https://www.wikihow.com/images/thumb/d/dd/Get-the-URL-for-Pictures-Step-7-Version-3.jpg/v4-460px-Get-the-URL-for-Pictures-Step-7-Version-3.jpg.webp',
-                                creator: {
-                                    name: 'Will'
-                                },
-                                createdAt: new Date(),
-                            }
-                        ]
-                    }];
+                return [4 /*yield*/, feed_1.Feed.find()];
             case 1:
                 feeds = _a.sent();
-                res.send(feeds);
+                res.status(200).json({
+                    message: 'Fetched posts successfully.',
+                    posts: feeds,
+                    totalItems: 1
+                });
                 return [3 /*break*/, 3];
             case 2:
                 err_1 = _a.sent();
@@ -68,25 +60,34 @@ exports.getPosts = function (req, res) { return __awaiter(_this, void 0, void 0,
         }
     });
 }); };
-exports.createPost = function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
-    var _a, title, content, err_2;
+exports.createPost = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    var _a, title, content, imageUrl, creator, feed, err_2;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                _b.trys.push([0, 2, , 3]);
+                _b.trys.push([0, 3, , 4]);
                 return [4 /*yield*/, req.body];
             case 1:
-                _a = _b.sent(), title = _a.title, content = _a.content;
+                _a = _b.sent(), title = _a.title, content = _a.content, imageUrl = _a.imageUrl, creator = _a.creator;
+                feed = feed_1.Feed.build({
+                    title: title,
+                    imageUrl: imageUrl,
+                    content: content,
+                    creator: creator
+                });
+                return [4 /*yield*/, feed.save()];
+            case 2:
+                _b.sent();
                 res.status(201).send({
                     message: 'Post created successfully!',
-                    post: { _id: new Date().toISOString(), title: title, content: content },
+                    post: { _id: new Date().toISOString(), title: title, imageUrl: imageUrl, content: content, creator: creator },
                 });
-                return [3 /*break*/, 3];
-            case 2:
+                return [3 /*break*/, 4];
+            case 3:
                 err_2 = _b.sent();
                 console.log(err_2);
-                return [3 /*break*/, 3];
-            case 3: return [2 /*return*/];
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
         }
     });
 }); };
