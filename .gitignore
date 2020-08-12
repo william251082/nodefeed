@@ -1,0 +1,9 @@
+.idea
+.vscode
+
+./auth/node_modules
+./feeds/node_modules
+./client/node_modules
+./common/node_modules
+./client/.next
+./common/build
