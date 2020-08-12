@@ -68,7 +68,7 @@ exports.getPosts = function (req, res) { return __awaiter(_this, void 0, void 0,
         }
     });
 }); };
-exports.createPost = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+exports.createPost = function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
     var _a, title, content, err_2;
     return __generator(this, function (_b) {
         switch (_b.label) {

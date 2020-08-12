@@ -30,9 +30,9 @@ app.use((req, res, next) => {
 
 // app.use(currentUser);
 
-// app.use(createFeedRouter);
-// app.use(showFeedRouter);
 app.use(indexFeedRouter);
+app.use(createFeedRouter);
+// app.use(showFeedRouter);
 // app.use(updateFeed);
 
 app.all('*', async (req: Request, res: Response) => {

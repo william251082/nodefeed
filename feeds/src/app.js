@@ -43,6 +43,7 @@ var express_1 = __importDefault(require("express"));
 require("express-async-errors");
 var body_parser_1 = require("body-parser");
 var common_1 = require("@iceshoptickets/common");
+var new_1 = require("./routes/new");
 var routes_1 = require("./routes");
 var app = express_1.default();
 exports.app = app;
@@ -61,9 +62,9 @@ app.use(function (req, res, next) {
     next();
 });
 // app.use(currentUser);
-// app.use(createFeedRouter);
-// app.use(showFeedRouter);
 app.use(routes_1.indexFeedRouter);
+app.use(new_1.createFeedRouter);
+// app.use(showFeedRouter);
 // app.use(updateFeed);
 app.all('*', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
     return __generator(this, function (_a) {

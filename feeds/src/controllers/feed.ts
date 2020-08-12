@@ -1,4 +1,5 @@
-import {Request, Response} from "express";
+import {NextFunction, Request, Response} from "express";
+import {validateRequest} from "@iceshoptickets/common";
 
 export const getPosts = async (req: Request, res: Response) => {
     try {
@@ -22,7 +23,7 @@ export const getPosts = async (req: Request, res: Response) => {
     }
 };
 
-export const createPost = async (req: Request, res: Response) => {
+export const createPost = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { title, content } = await req.body;
 
