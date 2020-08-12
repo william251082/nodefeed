@@ -9,26 +9,21 @@ var feedSchema = new mongoose_1.default.Schema({
         type: String,
         required: true
     },
-    price: {
-        type: Number,
-        required: true
-    },
-    userId: {
+    imageUrl: {
         type: String,
         required: true
     },
-    orderId: {
-        type: String
+    content: {
+        type: String,
+        required: true
+    },
+    creator: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     }
 }, {
-    // view level logic, not model
-    toJSON: {
-        // ret is the object that's just about to turn to JSON
-        transform: function (doc, ret) {
-            ret.id = ret._id;
-            delete ret._id;
-        }
-    }
+    timestamps: true
 });
 feedSchema.statics.build = function (attrs) {
     return new Feed(attrs);
