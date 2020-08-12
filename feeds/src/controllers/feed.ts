@@ -2,9 +2,6 @@ import {Request, Response} from "express";
 
 export const getPosts = async (req: Request, res: Response) => {
     try {
-        // const feeds = await Feed.find({
-        //     orderId: undefined,
-        // });
         const feeds = await {
             posts: [
                 {
@@ -23,5 +20,17 @@ export const getPosts = async (req: Request, res: Response) => {
     } catch (err) {
         console.log(err);
     }
+};
 
+export const createPost = async (req: Request, res: Response) => {
+    try {
+        const { title, content } = await req.body;
+
+        res.status(201).send({
+            message: 'Post created successfully!',
+            post: { _id: new Date().toISOString(), title, content },
+        });
+    } catch (err) {
+        console.log(err);
+    }
 };

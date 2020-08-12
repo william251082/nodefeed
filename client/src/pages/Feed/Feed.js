@@ -106,9 +106,9 @@ class Feed extends Component {
       editLoading: true
     });
     // Set up data (with image!)
-    let url = 'URL';
+    let url = 'http://localhost:8080/api/feeds';
     if (this.state.editPost) {
-      url = 'URL';
+      url = 'http://localhost:8080/api/feeds';
     }
 
     fetch(url)
@@ -119,6 +119,7 @@ class Feed extends Component {
         return res.json();
       })
       .then(resData => {
+        console.log(resData);
         const post = {
           _id: resData.post._id,
           title: resData.post.title,

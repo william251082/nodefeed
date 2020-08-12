@@ -68,3 +68,25 @@ exports.getPosts = function (req, res) { return __awaiter(_this, void 0, void 0,
         }
     });
 }); };
+exports.createPost = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    var _a, title, content, err_2;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 2, , 3]);
+                return [4 /*yield*/, req.body];
+            case 1:
+                _a = _b.sent(), title = _a.title, content = _a.content;
+                res.status(201).send({
+                    message: 'Post created successfully!',
+                    post: { _id: new Date().toISOString(), title: title, content: content },
+                });
+                return [3 /*break*/, 3];
+            case 2:
+                err_2 = _b.sent();
+                console.log(err_2);
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); };
