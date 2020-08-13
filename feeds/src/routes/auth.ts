@@ -26,6 +26,6 @@ router.put('/auth/signup',
         .isEmpty()
     ], signup);
 
-router.post('/login', login);
+router.post('/auth/login', login);
 
 export { router as authRoutes }
