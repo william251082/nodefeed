@@ -34,60 +34,242 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+}
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var feed_1 = require("../models/feed");
+var express_validator_1 = require("express-validator");
+var user_1 = require("../models/user");
+var path = __importStar(require("path"));
+var fs = __importStar(require("fs"));
 exports.getPosts = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-    var feeds, err_1;
+    var currentPage, perPage, totalItems, feeds, err_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 2, , 3]);
-                return [4 /*yield*/, feed_1.Feed.find()];
+                _a.trys.push([0, 3, , 4]);
+                currentPage = req.query.page || 1;
+                perPage = 2;
+                totalItems = void 0;
+                return [4 /*yield*/, feed_1.Feed.find().countDocuments()];
             case 1:
+                totalItems = _a.sent();
+                return [4 /*yield*/, feed_1.Feed.find().skip((currentPage - 1) * perPage).limit(perPage)];
+            case 2:
                 feeds = _a.sent();
                 res.status(200).json({
                     message: 'Fetched posts successfully.',
                     posts: feeds,
-                    totalItems: 1
-                });
-                return [3 /*break*/, 3];
-            case 2:
-                err_1 = _a.sent();
-                console.log(err_1);
-                return [3 /*break*/, 3];
-            case 3: return [2 /*return*/];
-        }
-    });
-}); };
-exports.createPost = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-    var _a, title, content, imageUrl, creator, feed, err_2;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
-            case 0:
-                _b.trys.push([0, 3, , 4]);
-                return [4 /*yield*/, req.body];
-            case 1:
-                _a = _b.sent(), title = _a.title, content = _a.content, imageUrl = _a.imageUrl, creator = _a.creator;
-                feed = feed_1.Feed.build({
-                    title: title,
-                    imageUrl: imageUrl,
-                    content: content,
-                    creator: creator
-                });
-                return [4 /*yield*/, feed.save()];
-            case 2:
-                _b.sent();
-                res.status(201).send({
-                    message: 'Post created successfully!',
-                    post: { _id: new Date().toISOString(), title: title, imageUrl: imageUrl, content: content, creator: creator },
+                    totalItems: totalItems
                 });
                 return [3 /*break*/, 4];
             case 3:
-                err_2 = _b.sent();
-                console.log(err_2);
+                err_1 = _a.sent();
+                console.log(err_1);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
         }
     });
 }); };
+exports.createPost = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+    var errors, error, _a, title, content, imageUrl, creator, feed, user, err_2;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 6, , 7]);
+                errors = express_validator_1.validationResult(req);
+                if (!errors.isEmpty()) {
+                    error = new Error('Validation failed, entered data is incorrect.');
+                    error.statusCode = 422;
+                    throw error;
+                }
+                if (!req.file) {
+                    throw new Error('No image provided.');
+                }
+                return [4 /*yield*/, req.body];
+            case 1:
+                _a = _b.sent(), title = _a.title, content = _a.content, imageUrl = _a.imageUrl;
+                creator = void 0;
+                feed = feed_1.Feed.build({
+                    title: title,
+                    imageUrl: imageUrl,
+                    content: content,
+                    creator: req.userId
+                });
+                return [4 /*yield*/, feed.save()];
+            case 2:
+                _b.sent();
+                user = user_1.User.findById(req.userId);
+                creator = user;
+                if (!(user !== null)) return [3 /*break*/, 5];
+                return [4 /*yield*/, user.posts.push(feed)];
+            case 3:
+                _b.sent();
+                return [4 /*yield*/, user.save()];
+            case 4:
+                _b.sent();
+                _b.label = 5;
+            case 5:
+                res.status(201).json({
+                    message: 'Post created successfully!',
+                    feed: feed,
+                    creator: { _id: creator._id, name: creator.name }
+                });
+                return [3 /*break*/, 7];
+            case 6:
+                err_2 = _b.sent();
+                console.log(err_2);
+                return [3 /*break*/, 7];
+            case 7: return [2 /*return*/];
+        }
+    });
+}); };
+exports.getPost = function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
+    var postId, feed, error, err_3;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                postId = req.params.postId;
+                return [4 /*yield*/, feed_1.Feed.findById(postId)];
+            case 1:
+                feed = _a.sent();
+                if (!feed) {
+                    error = new Error('Could not find post.');
+                    error.statusCode = 404;
+                    throw error;
+                }
+                res.status(200).json({ message: 'Post fetched.', feed: feed });
+                return [3 /*break*/, 3];
+            case 2:
+                err_3 = _a.sent();
+                console.log(err_3);
+                if (!err_3.statusCode) {
+                    err_3.statusCode = 500;
+                }
+                next(err_3);
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); };
+exports.updatePost = function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
+    var postId, errors, error, _a, title, content, imageUrl, error, feed, error, error, result, err_4;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 3, , 4]);
+                postId = req.params.postId;
+                errors = express_validator_1.validationResult(req);
+                if (!errors.isEmpty()) {
+                    error = new Error('Validation failed, entered data is incorrect.');
+                    error.statusCode = 422;
+                    throw error;
+                }
+                _a = req.body, title = _a.title, content = _a.content;
+                imageUrl = req.body.image;
+                if (req.file) {
+                    imageUrl = req.file.path;
+                }
+                if (!imageUrl) {
+                    error = new Error('No file picked.');
+                    error.statusCode = 422;
+                    throw error;
+                }
+                return [4 /*yield*/, feed_1.Feed.findById(postId)];
+            case 1:
+                feed = _b.sent();
+                if (!feed) {
+                    error = new Error('Could not find post.');
+                    error.statusCode = 404;
+                    throw error;
+                }
+                if (feed.creator.toString() !== req.userId) {
+                    error = new Error('Not authorized!');
+                    error.statusCode = 403;
+                    throw error;
+                }
+                if (imageUrl !== feed.imageUrl) {
+                    clearImage(feed.imageUrl);
+                }
+                feed.title = title;
+                feed.imageUrl = imageUrl;
+                feed.content = content;
+                return [4 /*yield*/, feed.save()];
+            case 2:
+                result = _b.sent();
+                res.status(200).json({ message: 'Post updated!', post: result });
+                return [3 /*break*/, 4];
+            case 3:
+                err_4 = _b.sent();
+                console.log(err_4);
+                if (!err_4.statusCode) {
+                    err_4.statusCode = 500;
+                }
+                next(err_4);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); };
+exports.deletePost = function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
+    var postId, feed, error, error, user, err_5;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 7, , 8]);
+                postId = req.params.postId;
+                return [4 /*yield*/, feed_1.Feed.findById(postId)];
+            case 1:
+                feed = _a.sent();
+                if (!feed) {
+                    error = new Error('Could not find post.');
+                    error.statusCode = 404;
+                    throw error;
+                }
+                if (feed.creator.toString() !== req.userId) {
+                    error = new Error('Not authorized!');
+                    error.statusCode = 403;
+                    throw error;
+                }
+                // Check logged in user
+                clearImage(feed.imageUrl);
+                return [4 /*yield*/, feed_1.Feed.findByIdAndRemove(postId)];
+            case 2:
+                _a.sent();
+                return [4 /*yield*/, user_1.User.findById(req.userId)];
+            case 3:
+                user = _a.sent();
+                if (!(user !== null)) return [3 /*break*/, 6];
+                return [4 /*yield*/, user.posts.pull(postId)];
+            case 4:
+                _a.sent();
+                return [4 /*yield*/, user.save()];
+            case 5:
+                _a.sent();
+                _a.label = 6;
+            case 6:
+                res.status(200).json({ message: 'Deleted post.' });
+                return [3 /*break*/, 8];
+            case 7:
+                err_5 = _a.sent();
+                console.log(err_5);
+                if (!err_5.statusCode) {
+                    err_5.statusCode = 500;
+                }
+                next(err_5);
+                return [3 /*break*/, 8];
+            case 8: return [2 /*return*/];
+        }
+    });
+}); };
+var clearImage = function (filePath) {
+    filePath = path.join(__dirname, '..', filePath);
+    fs.unlink(filePath, function (err) { return console.log(err); });
+};

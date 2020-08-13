@@ -50,19 +50,33 @@ var express_1 = __importDefault(require("express"));
 require("express-async-errors");
 var body_parser_1 = require("body-parser");
 var common_1 = require("@iceshoptickets/common");
-var new_1 = require("./routes/new");
-var routes_1 = require("./routes");
 var path = __importStar(require("path"));
+var auth_1 = require("./routes/auth");
+// @ts-ignore
+var multer_1 = __importDefault(require("multer"));
+var feed_1 = require("./routes/feed");
 var app = express_1.default();
 exports.app = app;
-// make sure tht express is aware that it's behind a proxy of ingress-nginx and still trust it
-app.set('trust proxy', true);
+var fileStorage = multer_1.default.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'images');
+    },
+    filename: function (req, file, cb) {
+        cb(null, new Date().toISOString() + '-' + file.originalname);
+    }
+});
+var fileFilter = function (req, file, cb) {
+    if (file.mimetype === 'image/png' ||
+        file.mimetype === 'image/jpg' ||
+        file.mimetype === 'image/jpeg') {
+        cb(null, true);
+    }
+    else {
+        cb(null, false);
+    }
+};
 app.use(body_parser_1.json());
-// app.use(
-//     cookieSession({
-//         signed: false,
-//         secure: process.env.NODE_ENV !== 'test'
-//     }));
+app.use(multer_1.default({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
 app.use('/images', express_1.default.static(path.join(__dirname, 'images')));
 app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -70,11 +84,15 @@ app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     next();
 });
-// app.use(currentUser);
-app.use(routes_1.indexFeedRouter);
-app.use(new_1.createFeedRouter);
-// app.use(showFeedRouter);
-// app.use(updateFeed);
+app.use(feed_1.feedRoutes);
+app.use(auth_1.authRoutes);
+// app.use((error:any, req: any, res: any) => {
+//   console.log(error);
+//   const status = error.statusCode || 500;
+//   const message = error.message;
+//   const data = error.data;
+//   res.status(status).json({ message: message, data: data });
+// });
 app.all('*', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
     return __generator(this, function (_a) {
         throw new common_1.NotFoundError();

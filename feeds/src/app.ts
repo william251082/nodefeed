@@ -2,19 +2,40 @@ import express, {Request, Response} from 'express';
 import 'express-async-errors'
 import { json } from 'body-parser';
 import {errorHandler, NotFoundError} from "@iceshoptickets/common";
-import {createFeedRouter} from "./routes/new";
-import {indexFeedRouter} from "./routes";
 import * as path from "path";
+import {authRoutes} from "./routes/auth";
+// @ts-ignore
+import multer from "multer";
+import {feedRoutes} from "./routes/feed";
 
 const app = express();
-// make sure tht express is aware that it's behind a proxy of ingress-nginx and still trust it
-app.set('trust proxy', true);
+
+const fileStorage = multer.diskStorage({
+  destination: (req:any, file:any, cb: any) => {
+    cb(null, 'images');
+  },
+  filename: (req:any, file:any, cb: any) => {
+    cb(null, new Date().toISOString() + '-' + file.originalname);
+  }
+});
+
+const fileFilter = (req:any, file:any, cb: any) => {
+  if (
+    file.mimetype === 'image/png' ||
+    file.mimetype === 'image/jpg' ||
+    file.mimetype === 'image/jpeg'
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
 app.use(json());
-// app.use(
-//     cookieSession({
-//         signed: false,
-//         secure: process.env.NODE_ENV !== 'test'
-//     }));
+
+app.use(
+  multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
+);
 
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
@@ -28,12 +49,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// app.use(currentUser);
+app.use(feedRoutes);
+app.use(authRoutes);
 
-app.use(indexFeedRouter);
-app.use(createFeedRouter);
-// app.use(showFeedRouter);
-// app.use(updateFeed);
+// app.use((error:any, req: any, res: any) => {
+//   console.log(error);
+//   const status = error.statusCode || 500;
+//   const message = error.message;
+//   const data = error.data;
+//   res.status(status).json({ message: message, data: data });
+// });
 
 app.all('*', async (req: Request, res: Response) => {
     throw new NotFoundError();

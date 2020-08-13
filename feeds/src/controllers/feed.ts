@@ -1,35 +1,164 @@
-import {Request, Response} from "express";
+import {NextFunction, Request, Response} from "express";
 import {Feed} from "../models/feed";
+import {validationResult} from "express-validator";
+import {User} from "../models/user";
+import * as path from "path";
+import * as fs from "fs";
+
+export interface IObjectExtend {[k: string]: any}
 
 export const getPosts = async (req: Request, res: Response) => {
     try {
-        const feeds = await Feed.find();
+        const currentPage: any = req.query.page || 1;
+        const perPage = 2;
+        let totalItems;
+        totalItems = await Feed.find().countDocuments();
+        const feeds = await Feed.find().skip((currentPage - 1) * perPage).limit(perPage);
         res.status(200).json({
             message: 'Fetched posts successfully.',
             posts: feeds,
-            totalItems: 1
+            totalItems
         });
     } catch (err) {
         console.log(err);
     }
 };
 
-export const createPost = async (req: Request, res: Response) => {
+export const createPost = async (req: IObjectExtend, res: Response) => {
     try {
-        const { title, content, imageUrl, creator } = await req.body;
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            const error: IObjectExtend = new Error('Validation failed, entered data is incorrect.');
+            error.statusCode = 422;
+            throw error;
+        }
+        if (!req.file) {
+            throw new Error('No image provided.');
+        }
+        const { title, content, imageUrl} = await req.body;
+        let creator: any;
         const feed = Feed.build({
             title,
             imageUrl,
             content,
-            creator
+            creator: req.userId
         });
         await feed.save();
-
-        res.status(201).send({
+        const user = User.findById(req.userId);
+        creator = user;
+        if (user !== null) {
+            await user.posts.push(feed);
+            await user.save();
+        }
+        res.status(201).json({
             message: 'Post created successfully!',
-            post: { _id: new Date().toISOString(), title, imageUrl, content, creator },
+            feed,
+            creator: { _id: creator._id, name: creator.name }
         });
     } catch (err) {
         console.log(err);
     }
+};
+
+export const getPost = async (req: IObjectExtend, res: Response, next: NextFunction) => {
+    try {
+        const postId = req.params.postId;
+        const feed = await Feed.findById(postId);
+        if (!feed) {
+            const error: IObjectExtend = new Error('Could not find post.');
+            error.statusCode = 404;
+            throw error;
+        }
+        res.status(200).json({message: 'Post fetched.', feed});
+    } catch (err) {
+        console.log(err);
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+};
+
+export const updatePost = async (req: IObjectExtend, res: Response, next: NextFunction) => {
+    try {
+        const postId = req.params.postId;
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            const error: IObjectExtend = new Error('Validation failed, entered data is incorrect.');
+            error.statusCode = 422;
+            throw error;
+        }
+        const {title, content} = req.body;
+        let imageUrl = req.body.image;
+        if (req.file) {
+            imageUrl = req.file.path;
+        }
+        if (!imageUrl) {
+            const error: IObjectExtend = new Error('No file picked.');
+            error.statusCode = 422;
+            throw error;
+        }
+        const feed = await Feed.findById(postId);
+        if (!feed) {
+            const error: IObjectExtend = new Error('Could not find post.');
+            error.statusCode = 404;
+            throw error;
+        }
+        if (feed.creator.toString() !== req.userId) {
+            const error: IObjectExtend = new Error('Not authorized!');
+            error.statusCode = 403;
+            throw error;
+        }
+        if (imageUrl !== feed.imageUrl) {
+            clearImage(feed.imageUrl);
+        }
+        feed.title = title;
+        feed.imageUrl = imageUrl;
+        feed.content = content;
+        const result = await feed.save();
+        res.status(200).json({ message: 'Post updated!', post: result });
+    } catch (err) {
+        console.log(err);
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+};
+
+export const deletePost = async (req: IObjectExtend, res: Response, next: NextFunction) => {
+    try {
+        const postId = req.params.postId;
+        const feed = await Feed.findById(postId);
+        if (!feed) {
+            const error: IObjectExtend = new Error('Could not find post.');
+            error.statusCode = 404;
+            throw error;
+        }
+        if (feed.creator.toString() !== req.userId) {
+            const error: IObjectExtend = new Error('Not authorized!');
+            error.statusCode = 403;
+            throw error;
+        }
+        // Check logged in user
+        clearImage(feed.imageUrl);
+        await Feed.findByIdAndRemove(postId);
+        const user = await User.findById(req.userId);
+        if (user !== null) {
+            await user.posts.pull(postId);
+            await user.save();
+        }
+        res.status(200).json({ message: 'Deleted post.' });
+    } catch (err) {
+        console.log(err);
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+};
+
+const clearImage = (filePath: string) => {
+  filePath = path.join(__dirname, '..', filePath);
+  fs.unlink(filePath, err => console.log(err));
 };

@@ -43,9 +43,10 @@ it('implements optimistic currency control', function (done) { return __awaiter(
         switch (_a.label) {
             case 0:
                 feed = feed_1.Feed.build({
-                    title: 'concert',
-                    price: 5,
-                    userId: '123',
+                    title: 'fghtfh',
+                    imageUrl: 'agthtjfdg',
+                    content: 'hdgsfd',
+                    creator: null
                 });
                 // Save the feed to the database
                 return [4 /*yield*/, feed.save()];
@@ -77,32 +78,6 @@ it('implements optimistic currency control', function (done) { return __awaiter(
                 err_1 = _a.sent();
                 return [2 /*return*/, done()];
             case 8: throw new Error('Should not reach this point');
-        }
-    });
-}); });
-it('increments the version number on multiple saves', function () { return __awaiter(_this, void 0, void 0, function () {
-    var feed;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0:
-                feed = feed_1.Feed.build({
-                    title: 'concert',
-                    price: 20,
-                    userId: '123',
-                });
-                return [4 /*yield*/, feed.save()];
-            case 1:
-                _a.sent();
-                expect(feed.version).toEqual(0);
-                return [4 /*yield*/, feed.save()];
-            case 2:
-                _a.sent();
-                expect(feed.version).toEqual(1);
-                return [4 /*yield*/, feed.save()];
-            case 3:
-                _a.sent();
-                expect(feed.version).toEqual(2);
-                return [2 /*return*/];
         }
     });
 }); });

@@ -3,9 +3,11 @@ import {Feed} from "../feed";
 it('implements optimistic currency control', async (done) => {
     // Create an instance of a feed
     const feed = Feed.build({
-        title: 'concert',
-        price: 5,
-        userId: '123',
+        title: 'fghtfh',
+        imageUrl: 'agthtjfdg',
+        content: 'hdgsfd',
+        creator: null
+
     });
 
     // Save the feed to the database
@@ -30,20 +32,4 @@ it('implements optimistic currency control', async (done) => {
     }
 
     throw new Error('Should not reach this point');
-});
-
-it('increments the version number on multiple saves', async () => {
-    const feed = Feed.build({
-        title: 'concert',
-        price: 20,
-        userId: '123',
-    });
-
-    await feed.save();
-    expect(feed.version).toEqual(0);
-    await feed.save();
-    expect(feed.version).toEqual(1);
-    await feed.save();
-    expect(feed.version).toEqual(2);
-
 });
