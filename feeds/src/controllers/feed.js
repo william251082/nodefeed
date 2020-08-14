@@ -1,4 +1,12 @@
 "use strict";
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -61,7 +69,7 @@ exports.getPosts = function (req, res) { return __awaiter(_this, void 0, void 0,
                 return [4 /*yield*/, feed_1.Feed.find().countDocuments()];
             case 1:
                 totalItems = _a.sent();
-                return [4 /*yield*/, feed_1.Feed.find().skip((currentPage - 1) * perPage).limit(perPage)];
+                return [4 /*yield*/, feed_1.Feed.find().populate('creator').skip((currentPage - 1) * perPage).limit(perPage)];
             case 2:
                 feeds = _a.sent();
                 res.status(200).json({
@@ -111,10 +119,6 @@ exports.createPost = function (req, res) { return __awaiter(_this, void 0, void 
                 return [4 /*yield*/, feed.save()];
             case 3:
                 _b.sent();
-                socket_1.socketio.getIO().emit('posts', {
-                    action: 'create',
-                    post: feed
-                });
                 return [4 /*yield*/, user_1.User.findById(req.userId)];
             case 4:
                 user = _b.sent();
@@ -128,6 +132,10 @@ exports.createPost = function (req, res) { return __awaiter(_this, void 0, void 
                 _b.sent();
                 _b.label = 7;
             case 7:
+                socket_1.socketio.getIO().emit('posts', {
+                    action: 'create',
+                    post: __assign({}, feed, { creator: { _id: req.userId, name: creator.name } })
+                });
                 res.status(201).json({
                     message: 'Post created successfully!',
                     feed: feed,

@@ -14,7 +14,7 @@ export const getPosts = async (req: Request, res: Response) => {
         const perPage = 2;
         let totalItems;
         totalItems = await Feed.find().countDocuments();
-        const feeds = await Feed.find().skip((currentPage - 1) * perPage).limit(perPage);
+        const feeds = await Feed.find().populate('creator').skip((currentPage - 1) * perPage).limit(perPage);
         res.status(200).json({
             message: 'Fetched posts successfully.',
             posts: feeds,
@@ -48,16 +48,16 @@ export const createPost = async (req: IObjectExtend, res: Response) => {
             creator: req.userId
         });
         await feed.save();
-        socketio.getIO().emit('posts', {
-            action: 'create',
-            post: feed
-        });
         const user = await User.findById(req.userId);
         creator = user;
         if (user !== null) {
             await creator.posts.push(feed);
             await creator.save();
         }
+        socketio.getIO().emit('posts', {
+            action: 'create',
+            post: { ...feed, creator: {_id: req.userId, name: creator.name}}
+        });
         res.status(201).json({
             message: 'Post created successfully!',
             feed,
