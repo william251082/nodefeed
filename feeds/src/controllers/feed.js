@@ -1,12 +1,4 @@
 "use strict";
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -56,7 +48,6 @@ var express_validator_1 = require("express-validator");
 var user_1 = require("../models/user");
 var path = __importStar(require("path"));
 var fs = __importStar(require("fs"));
-var socket_1 = require("../socket");
 exports.getPosts = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
     var currentPage, perPage, totalItems, feeds, err_1;
     return __generator(this, function (_a) {
@@ -136,10 +127,6 @@ exports.createPost = function (req, res) { return __awaiter(_this, void 0, void 
                 _b.sent();
                 _b.label = 7;
             case 7:
-                socket_1.socketio.getIO().emit('posts', {
-                    action: 'create',
-                    post: __assign({}, feed, { creator: { _id: req.userId, name: creator.name } })
-                });
                 res.status(201).json({
                     message: 'Post created successfully!',
                     post: feed,
@@ -228,10 +215,6 @@ exports.updatePost = function (req, res, next) { return __awaiter(_this, void 0,
                 return [4 /*yield*/, feed.save()];
             case 2:
                 result = _b.sent();
-                socket_1.socketio.getIO().emit('posts', {
-                    action: 'update',
-                    post: result
-                });
                 res.status(200).json({ message: 'Post updated!', post: result });
                 return [3 /*break*/, 4];
             case 3:
@@ -285,10 +268,6 @@ exports.deletePost = function (req, res, next) { return __awaiter(_this, void 0,
                 _a.sent();
                 _a.label = 6;
             case 6:
-                socket_1.socketio.getIO().emit('posts', {
-                    action: 'delete',
-                    post: postId
-                });
                 res.status(200).json({ message: 'Deleted post.' });
                 return [3 /*break*/, 8];
             case 7:

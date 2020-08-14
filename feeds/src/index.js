@@ -42,9 +42,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var mongoose_1 = __importDefault(require("mongoose"));
 var app_1 = require("./app");
 var dev_1 = require("./config/dev");
-var socket_1 = require("./socket");
 var start = function () { return __awaiter(_this, void 0, void 0, function () {
-    var server, io, err_1;
+    var err_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -69,11 +68,7 @@ var start = function () { return __awaiter(_this, void 0, void 0, function () {
                         console.log('Listening on port 8080, feeds');
                     })];
             case 3:
-                server = _a.sent();
-                io = socket_1.socketio.init(server);
-                io.on('connection', function (soket) {
-                    console.log('Client connected');
-                });
+                _a.sent();
                 return [3 /*break*/, 5];
             case 4:
                 err_1 = _a.sent();

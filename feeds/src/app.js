@@ -49,11 +49,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
 require("express-async-errors");
 var path = __importStar(require("path"));
-var auth_1 = require("./routes/auth");
-var feed_1 = require("./routes/feed");
 var bodyParser = __importStar(require("body-parser"));
 var multer_1 = __importDefault(require("multer"));
 var common_1 = require("@iceshoptickets/common");
+var express_graphql_1 = require("express-graphql");
+// @ts-ignore
+var schema_1 = __importDefault(require("./graphql/schema"));
+// @ts-ignore
+var resolvers_1 = __importDefault(require("./graphql/resolvers"));
 var app = express_1.default();
 exports.app = app;
 var storage = multer_1.default.diskStorage({
@@ -84,14 +87,14 @@ app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     next();
 });
-app.use(feed_1.feedRoutes);
-app.use(auth_1.authRoutes);
+// @ts-ignore
+app.use('/graphql', express_graphql_1.graphqlHTTP({ schema: schema_1.default, rootValue: resolvers_1.default }));
 app.use(function (error, req, res) {
-    console.log(error);
+    console.log('ERROR', error);
     var status = error.statusCode || 500;
     var message = error.message;
     var data = error.data;
-    res.json({ message: message, data: data });
+    res({ message: message, data: data });
 });
 app.all('*', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
     return __generator(this, function (_a) {

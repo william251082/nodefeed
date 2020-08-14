@@ -1,11 +1,15 @@
 import express, {Request, Response} from 'express';
 import 'express-async-errors'
 import * as path from "path";
-import {authRoutes} from "./routes/auth";
-import {feedRoutes} from "./routes/feed";
 import * as bodyParser from "body-parser";
 import multer from "multer";
 import {errorHandler, NotFoundError} from "@iceshoptickets/common";
+
+import { graphqlHTTP } from "express-graphql";
+// @ts-ignore
+import graphqlSchema from "./graphql/schema";
+// @ts-ignore
+import graphqlResolver from './graphql/resolvers';
 
 const app = express();
 
@@ -48,15 +52,15 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(feedRoutes);
-app.use(authRoutes);
+// @ts-ignore
+app.use('/graphql', graphqlHTTP({schema: graphqlSchema, rootValue: graphqlResolver}));
 
 app.use((error:any, req: any, res: any) => {
-  console.log(error);
+  console.log('ERROR', error);
   const status = error.statusCode || 500;
   const message = error.message;
   const data = error.data;
-  res.json({ message: message, data: data });
+  res({ message: message, data: data });
 });
 
 app.all('*', async (req: Request, res: Response) => {

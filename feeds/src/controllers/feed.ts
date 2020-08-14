@@ -4,7 +4,6 @@ import {validationResult} from "express-validator";
 import {User} from "../models/user";
 import * as path from "path";
 import * as fs from "fs";
-import {socketio} from "../socket";
 
 export interface IObjectExtend {[k: string]: any}
 
@@ -58,10 +57,6 @@ export const createPost = async (req: IObjectExtend, res: Response) => {
             await creator.posts.push(feed);
             await creator.save();
         }
-        socketio.getIO().emit('posts', {
-            action: 'create',
-            post: { ...feed, creator: {_id: req.userId, name: creator.name}}
-        });
         res.status(201).json({
             message: 'Post created successfully!',
             post: feed,
@@ -128,10 +123,6 @@ export const updatePost = async (req: IObjectExtend, res: Response, next: NextFu
         feed.imageUrl = imageUrl;
         feed.content = content;
         const result = await feed.save();
-        socketio.getIO().emit('posts', {
-            action: 'update',
-            post: result
-        });
         res.status(200).json({ message: 'Post updated!', post: result });
     } catch (err) {
         console.log(err);
@@ -166,10 +157,6 @@ export const deletePost = async (req: IObjectExtend, res: Response, next: NextFu
             await creator.posts.pull(postId);
             await creator.save();
         }
-        socketio.getIO().emit('posts', {
-            action: 'delete',
-            post: postId
-        });
         res.status(200).json({ message: 'Deleted post.' });
     } catch (err) {
         console.log(err);
