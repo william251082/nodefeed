@@ -14,7 +14,13 @@ class SinglePost extends Component {
 
   componentDidMount() {
     const postId = this.props.match.params.postId;
-    fetch(`http://localhost:8080/api/feed/${postId}`)
+    const method = 'GET';
+    fetch(`http://localhost:8080/api/feed/${postId}`, {
+        method,
+        headers: {
+                Authorization: 'Bearer ' + this.props.token
+            }
+        })
       .then(res => {
         if (res.status !== 200) {
           throw new Error('Failed to fetch status');
@@ -23,11 +29,12 @@ class SinglePost extends Component {
       })
       .then(resData => {
         this.setState({
-          title: resData.post.title,
-          author: resData.post.creator.name,
-          image: 'http://localhost:8080' + resData.post.imageUrl,
-          date: new Date(resData.post.createdAt).toLocaleDateString('en-US'),
-          content: resData.post.content
+          _id: resData.feed._id,
+          title: resData.feed.title,
+          author: resData.feed.creator.name,
+          image: 'http://localhost:8080/' + encodeURI(resData.feed.imageUrl.slice(resData.feed.imageUrl.search('images'))),
+          date: new Date(resData.feed.createdAt).toLocaleDateString('en-US'),
+          content: resData.feed.content
         });
       })
       .catch(err => {
