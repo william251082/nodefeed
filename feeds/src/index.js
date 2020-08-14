@@ -55,7 +55,7 @@ var start = function () { return __awaiter(_this, void 0, void 0, function () {
                 }
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 4, , 5]);
+                _a.trys.push([1, 3, , 4]);
                 return [4 /*yield*/, mongoose_1.default.connect(dev_1.config.mongoURI, {
                         useNewUrlParser: true,
                         useUnifiedTopology: true,
@@ -64,17 +64,15 @@ var start = function () { return __awaiter(_this, void 0, void 0, function () {
             case 2:
                 _a.sent();
                 console.log('Connected to Mongodb');
-                return [4 /*yield*/, app_1.app.listen(8080, function () {
-                        console.log('Listening on port 8080, feeds');
-                    })];
+                app_1.app.listen(8080, function () {
+                    console.log('Listening on port 8080, feeds');
+                });
+                return [3 /*break*/, 4];
             case 3:
-                _a.sent();
-                return [3 /*break*/, 5];
-            case 4:
                 err_1 = _a.sent();
                 console.error(err_1);
-                return [3 /*break*/, 5];
-            case 5: return [2 /*return*/];
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
         }
     });
 }); };

@@ -17,7 +17,7 @@ const start = async () => {
       });
       console.log('Connected to Mongodb');
 
-      await app.listen(8080, () => {
+      app.listen(8080, () => {
         console.log('Listening on port 8080, feeds')
       });
   } catch (err) {

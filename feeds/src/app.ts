@@ -53,7 +53,11 @@ app.use((req, res, next) => {
 });
 
 // @ts-ignore
-app.use('/graphql', graphqlHTTP({schema: graphqlSchema, rootValue: graphqlResolver}));
+app.use('/graphql', graphqlHTTP({
+    schema: graphqlSchema,
+    rootValue: graphqlResolver,
+    graphiql: true
+}));
 
 app.use((error:any, req: any, res: any) => {
   console.log('ERROR', error);

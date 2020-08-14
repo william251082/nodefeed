@@ -88,7 +88,11 @@ app.use(function (req, res, next) {
     next();
 });
 // @ts-ignore
-app.use('/graphql', express_graphql_1.graphqlHTTP({ schema: schema_1.default, rootValue: resolvers_1.default }));
+app.use('/graphql', express_graphql_1.graphqlHTTP({
+    schema: schema_1.default,
+    rootValue: resolvers_1.default,
+    graphiql: true
+}));
 app.use(function (error, req, res) {
     console.log('ERROR', error);
     var status = error.statusCode || 500;

@@ -2,3 +2,14 @@ npm install --save socket.io
 npm install --save socket.io-client
 
 npm install express express-graphql graphql
+
+http://localhost:8080/graphql
+mutation {
+  createUser(userInput: {
+    email: "hi@hi.com", name:"Will", password: "tester"
+  })
+  {
+    _id
+    email
+  }
+}
