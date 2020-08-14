@@ -14,7 +14,11 @@ export const getPosts = async (req: Request, res: Response) => {
         const perPage = 2;
         let totalItems;
         totalItems = await Feed.find().countDocuments();
-        const feeds = await Feed.find().populate('creator').skip((currentPage - 1) * perPage).limit(perPage);
+        const feeds = await Feed.find()
+            .populate('creator')
+            .sort({createdAt: -1})
+            .skip((currentPage - 1) * perPage)
+            .limit(perPage);
         res.status(200).json({
             message: 'Fetched posts successfully.',
             posts: feeds,
