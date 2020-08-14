@@ -138,7 +138,6 @@ it('creates a feed with valid inputs', function () { return __awaiter(_this, voi
                 feeds = _a.sent();
                 expect(feeds.length).toEqual(1);
                 expect(feeds[0].title).toEqual(title);
-                expect(feeds[0].price).toEqual(1.00);
                 return [2 /*return*/];
         }
     });

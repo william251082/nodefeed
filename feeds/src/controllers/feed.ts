@@ -4,6 +4,7 @@ import {validationResult} from "express-validator";
 import {User} from "../models/user";
 import * as path from "path";
 import * as fs from "fs";
+import {socketio} from "../socket";
 
 export interface IObjectExtend {[k: string]: any}
 
@@ -47,6 +48,10 @@ export const createPost = async (req: IObjectExtend, res: Response) => {
             creator: req.userId
         });
         await feed.save();
+        socketio.getIO().emit('posts', {
+            action: 'create',
+            post: feed
+        });
         const user = await User.findById(req.userId);
         creator = user;
         if (user !== null) {

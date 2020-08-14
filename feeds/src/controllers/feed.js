@@ -48,6 +48,7 @@ var express_validator_1 = require("express-validator");
 var user_1 = require("../models/user");
 var path = __importStar(require("path"));
 var fs = __importStar(require("fs"));
+var socket_1 = require("../socket");
 exports.getPosts = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
     var currentPage, perPage, totalItems, feeds, err_1;
     return __generator(this, function (_a) {
@@ -110,6 +111,10 @@ exports.createPost = function (req, res) { return __awaiter(_this, void 0, void 
                 return [4 /*yield*/, feed.save()];
             case 3:
                 _b.sent();
+                socket_1.socketio.getIO().emit('posts', {
+                    action: 'create',
+                    post: feed
+                });
                 return [4 /*yield*/, user_1.User.findById(req.userId)];
             case 4:
                 user = _b.sent();

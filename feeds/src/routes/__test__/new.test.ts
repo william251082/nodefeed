@@ -59,7 +59,6 @@ it('creates a feed with valid inputs', async () => {
     feeds = await Feed.find({});
     expect(feeds.length).toEqual(1);
     expect(feeds[0].title).toEqual(title);
-    expect(feeds[0].price).toEqual(1.00);
 });
 
 it ('publishes an event', async() => {
