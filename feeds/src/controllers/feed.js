@@ -78,11 +78,11 @@ exports.getPosts = function (req, res) { return __awaiter(_this, void 0, void 0,
     });
 }); };
 exports.createPost = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-    var errors, error, _a, title, content, imageUrl, creator, feed, user, err_2;
+    var errors, error, error, imageUrl, _a, title, content, creator, feed, user, err_2;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                _b.trys.push([0, 6, , 7]);
+                _b.trys.push([0, 8, , 9]);
                 errors = express_validator_1.validationResult(req);
                 if (!errors.isEmpty()) {
                     error = new Error('Validation failed, entered data is incorrect.');
@@ -90,43 +90,50 @@ exports.createPost = function (req, res) { return __awaiter(_this, void 0, void 
                     throw error;
                 }
                 if (!req.file) {
-                    throw new Error('No image provided.');
+                    error = new Error('No image provided.');
+                    error.statusCode = 422;
+                    throw error;
                 }
+                imageUrl = req.file.path;
                 return [4 /*yield*/, req.body];
             case 1:
-                _a = _b.sent(), title = _a.title, content = _a.content, imageUrl = _a.imageUrl;
+                _a = _b.sent(), title = _a.title, content = _a.content;
                 creator = void 0;
-                feed = feed_1.Feed.build({
-                    title: title,
-                    imageUrl: imageUrl,
-                    content: content,
-                    creator: req.userId
-                });
-                return [4 /*yield*/, feed.save()];
+                return [4 /*yield*/, feed_1.Feed.build({
+                        title: title,
+                        imageUrl: imageUrl,
+                        content: content,
+                        creator: req.userId
+                    })];
             case 2:
-                _b.sent();
-                user = user_1.User.findById(req.userId);
-                creator = user;
-                if (!(user !== null)) return [3 /*break*/, 5];
-                return [4 /*yield*/, user.posts.push(feed)];
+                feed = _b.sent();
+                return [4 /*yield*/, feed.save()];
             case 3:
                 _b.sent();
-                return [4 /*yield*/, user.save()];
+                return [4 /*yield*/, user_1.User.findById(req.userId)];
             case 4:
-                _b.sent();
-                _b.label = 5;
+                user = _b.sent();
+                creator = user;
+                if (!(user !== null)) return [3 /*break*/, 7];
+                return [4 /*yield*/, creator.posts.push(feed)];
             case 5:
+                _b.sent();
+                return [4 /*yield*/, creator.save()];
+            case 6:
+                _b.sent();
+                _b.label = 7;
+            case 7:
                 res.status(201).json({
                     message: 'Post created successfully!',
                     feed: feed,
                     creator: { _id: creator._id, name: creator.name }
                 });
-                return [3 /*break*/, 7];
-            case 6:
+                return [3 /*break*/, 9];
+            case 8:
                 err_2 = _b.sent();
                 console.log(err_2);
-                return [3 /*break*/, 7];
-            case 7: return [2 /*return*/];
+                return [3 /*break*/, 9];
+            case 9: return [2 /*return*/];
         }
     });
 }); };

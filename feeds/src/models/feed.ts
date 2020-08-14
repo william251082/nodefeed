@@ -5,7 +5,7 @@ interface FeedAttrs {
     title: string;
     imageUrl: string;
     content: string;
-    creator?: mongoose.Schema.Types.ObjectId | null;
+    creator: mongoose.Schema.Types.ObjectId;
 }
 
 // describes required props that User Model has
@@ -18,7 +18,7 @@ interface FeedDoc extends mongoose.Document {
     title: string;
     imageUrl: string;
     content: string;
-    creator: mongoose.Schema.Types.ObjectId | null;
+    creator: mongoose.Schema.Types.ObjectId;
 }
 
 const feedSchema = new mongoose.Schema({
@@ -37,7 +37,7 @@ const feedSchema = new mongoose.Schema({
     creator: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true
+      required: false
     }
   },  {
     timestamps: true

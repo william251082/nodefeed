@@ -33,22 +33,25 @@ export const createPost = async (req: IObjectExtend, res: Response) => {
             throw error;
         }
         if (!req.file) {
-            throw new Error('No image provided.');
+            const error: IObjectExtend = new Error('No image provided.');
+            error.statusCode = 422;
+            throw error;
         }
-        const { title, content, imageUrl} = await req.body;
+        const imageUrl = req.file.path;
+        const { title, content } = await req.body;
         let creator: any;
-        const feed = Feed.build({
+        const feed = await Feed.build({
             title,
             imageUrl,
             content,
             creator: req.userId
         });
         await feed.save();
-        const user = User.findById(req.userId);
+        const user = await User.findById(req.userId);
         creator = user;
         if (user !== null) {
-            await user.posts.push(feed);
-            await user.save();
+            await creator.posts.push(feed);
+            await creator.save();
         }
         res.status(201).json({
             message: 'Post created successfully!',
@@ -143,10 +146,12 @@ export const deletePost = async (req: IObjectExtend, res: Response, next: NextFu
         // Check logged in user
         clearImage(feed.imageUrl);
         await Feed.findByIdAndRemove(postId);
+        let creator: any;
         const user = await User.findById(req.userId);
         if (user !== null) {
-            await user.posts.pull(postId);
-            await user.save();
+            creator = user;
+            await creator.posts.pull(postId);
+            await creator.save();
         }
         res.status(200).json({ message: 'Deleted post.' });
     } catch (err) {

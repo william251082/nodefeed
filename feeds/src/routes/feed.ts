@@ -5,31 +5,28 @@ import {requireAuth} from "../middleware/require-auth";
 
 const router = express.Router();
 
-router.get('/api/feeds', getPosts);
+router.get('/api/feeds', requireAuth, getPosts);
 
-router.post('/api/feeds', [
+router.post('/api/feed', [
         body('title')
-            .trim()
-            .isLength({min: 5}),
-        body('imageUrl')
             .trim()
             .isLength({min: 5}),
         body('content')
             .trim()
             .isLength({min: 5})
-        ], createPost);
+        ], requireAuth, createPost);
 
-router.get('/api/feeds/:postId', getPost);
+router.get('/api/feed/:postId', requireAuth, getPost);
 
-router.put('/api/feeds/:postId', requireAuth, [
+router.put('/api/feed/:postId', [
         body('title')
           .trim()
           .isLength({ min: 5 }),
         body('content')
           .trim()
           .isLength({ min: 5 })
-        ], updatePost);
+        ], requireAuth, updatePost);
 
-router.delete('/post/:postId', requireAuth, deletePost);
+router.delete('/api/feed/:postId', requireAuth, deletePost);
 
 export { router as feedRoutes };

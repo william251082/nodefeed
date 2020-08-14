@@ -7,3 +7,4 @@
 ./common/node_modules
 ./client/.next
 ./common/build
+./images/*
