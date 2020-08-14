@@ -20,7 +20,7 @@ var feedSchema = new mongoose_1.default.Schema({
     creator: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'User',
-        required: false
+        required: true
     }
 }, {
     timestamps: true

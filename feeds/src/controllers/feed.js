@@ -226,7 +226,7 @@ exports.updatePost = function (req, res, next) { return __awaiter(_this, void 0,
     });
 }); };
 exports.deletePost = function (req, res, next) { return __awaiter(_this, void 0, void 0, function () {
-    var postId, feed, error, error, user, err_5;
+    var postId, feed, error, error, creator, user, err_5;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -250,14 +250,16 @@ exports.deletePost = function (req, res, next) { return __awaiter(_this, void 0,
                 return [4 /*yield*/, feed_1.Feed.findByIdAndRemove(postId)];
             case 2:
                 _a.sent();
+                creator = void 0;
                 return [4 /*yield*/, user_1.User.findById(req.userId)];
             case 3:
                 user = _a.sent();
                 if (!(user !== null)) return [3 /*break*/, 6];
-                return [4 /*yield*/, user.posts.pull(postId)];
+                creator = user;
+                return [4 /*yield*/, creator.posts.pull(postId)];
             case 4:
                 _a.sent();
-                return [4 /*yield*/, user.save()];
+                return [4 /*yield*/, creator.save()];
             case 5:
                 _a.sent();
                 _a.label = 6;
