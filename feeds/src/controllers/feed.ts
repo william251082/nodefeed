@@ -60,7 +60,7 @@ export const createPost = async (req: IObjectExtend, res: Response) => {
         });
         res.status(201).json({
             message: 'Post created successfully!',
-            feed,
+            post: feed,
             creator: { _id: creator._id, name: creator.name }
         });
     } catch (err) {
@@ -77,7 +77,7 @@ export const getPost = async (req: IObjectExtend, res: Response, next: NextFunct
             error.statusCode = 404;
             throw error;
         }
-        res.status(200).json({message: 'Post fetched.', feed});
+        res.status(200).json({message: 'Post fetched.', post: feed});
     } catch (err) {
         console.log(err);
         if (!err.statusCode) {
@@ -124,6 +124,10 @@ export const updatePost = async (req: IObjectExtend, res: Response, next: NextFu
         feed.imageUrl = imageUrl;
         feed.content = content;
         const result = await feed.save();
+        socketio.getIO().emit('posts', {
+            action: 'update',
+            post: result
+        });
         res.status(200).json({ message: 'Post updated!', post: result });
     } catch (err) {
         console.log(err);

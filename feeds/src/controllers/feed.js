@@ -138,7 +138,7 @@ exports.createPost = function (req, res) { return __awaiter(_this, void 0, void 
                 });
                 res.status(201).json({
                     message: 'Post created successfully!',
-                    feed: feed,
+                    post: feed,
                     creator: { _id: creator._id, name: creator.name }
                 });
                 return [3 /*break*/, 9];
@@ -165,7 +165,7 @@ exports.getPost = function (req, res, next) { return __awaiter(_this, void 0, vo
                     error.statusCode = 404;
                     throw error;
                 }
-                res.status(200).json({ message: 'Post fetched.', feed: feed });
+                res.status(200).json({ message: 'Post fetched.', post: feed });
                 return [3 /*break*/, 3];
             case 2:
                 err_3 = _a.sent();
@@ -224,6 +224,10 @@ exports.updatePost = function (req, res, next) { return __awaiter(_this, void 0,
                 return [4 /*yield*/, feed.save()];
             case 2:
                 result = _b.sent();
+                socket_1.socketio.getIO().emit('posts', {
+                    action: 'update',
+                    post: result
+                });
                 res.status(200).json({ message: 'Post updated!', post: result });
                 return [3 /*break*/, 4];
             case 3:
