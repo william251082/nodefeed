@@ -166,6 +166,10 @@ export const deletePost = async (req: IObjectExtend, res: Response, next: NextFu
             await creator.posts.pull(postId);
             await creator.save();
         }
+        socketio.getIO().emit('posts', {
+            action: 'delete',
+            post: postId
+        });
         res.status(200).json({ message: 'Deleted post.' });
     } catch (err) {
         console.log(err);

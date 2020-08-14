@@ -69,7 +69,11 @@ exports.getPosts = function (req, res) { return __awaiter(_this, void 0, void 0,
                 return [4 /*yield*/, feed_1.Feed.find().countDocuments()];
             case 1:
                 totalItems = _a.sent();
-                return [4 /*yield*/, feed_1.Feed.find().populate('creator').skip((currentPage - 1) * perPage).limit(perPage)];
+                return [4 /*yield*/, feed_1.Feed.find()
+                        .populate('creator')
+                        .sort({ createdAt: -1 })
+                        .skip((currentPage - 1) * perPage)
+                        .limit(perPage)];
             case 2:
                 feeds = _a.sent();
                 res.status(200).json({
@@ -281,6 +285,10 @@ exports.deletePost = function (req, res, next) { return __awaiter(_this, void 0,
                 _a.sent();
                 _a.label = 6;
             case 6:
+                socket_1.socketio.getIO().emit('posts', {
+                    action: 'delete',
+                    post: postId
+                });
                 res.status(200).json({ message: 'Deleted post.' });
                 return [3 /*break*/, 8];
             case 7:
