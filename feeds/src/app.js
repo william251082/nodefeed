@@ -85,13 +85,25 @@ app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, PATCH, DELETE');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
     next();
 });
 // @ts-ignore
 app.use('/graphql', express_graphql_1.graphqlHTTP({
     schema: schema_1.default,
     rootValue: resolvers_1.default,
-    graphiql: true
+    graphiql: true,
+    formatError: function (err) {
+        if (!err.originalError) {
+            return err;
+        }
+        var data = err.originalError.data;
+        var message = err.message || 'An error occurred';
+        var code = err.originalError.code || 500;
+        return { message: message, status: code, data: data };
+    }
 }));
 app.use(function (error, req, res) {
     console.log('ERROR', error);
