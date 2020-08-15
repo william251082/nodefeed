@@ -7,6 +7,7 @@ import {IObjectExtend} from "../controllers/feed";
 import {Request} from "express";
 import jwt from 'jsonwebtoken';
 import {Feed} from "../models/feed";
+import {clearImage} from "../util/file";
 
 export default {
     createUser: async function({ userInput }: any, req: Request) {
@@ -217,5 +218,31 @@ export default {
       createdAt: updated_post.createdAt.toISOString(),
       updatedAt: updated_post.updatedAt.toISOString()
     };
+  },
+    deletePost: async function({ id }: any, req: IObjectExtend) {
+    if (!req.isAuth) {
+      const error: IObjectExtend = new Error('Not authenticated!');
+      error.code = 401;
+      throw error;
+    }
+    const post = await Feed.findById(id);
+    if (!post) {
+      const error: IObjectExtend = new Error('No post found!');
+      error.code = 404;
+      throw error;
+    }
+    if (post.creator.toString() !== req.userId.toString()) {
+      const error: IObjectExtend = new Error('Not authorized!');
+      error.code = 403;
+      throw error;
+    }
+    clearImage(post.imageUrl);
+    await Feed.findByIdAndRemove(id);
+    const user = await User.findById(req.userId);
+    let user_doc: any;
+    user_doc = user;
+    user_doc.posts.pull(id);
+    await user_doc.save();
+    return true;
   },
 };
