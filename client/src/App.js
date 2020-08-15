@@ -95,12 +95,12 @@ class App extends Component {
         console.log(resData);
         this.setState({
           isAuth: true,
-          token: resData.data.token,
+          token: resData.data.login.token,
           authLoading: false,
-          userId: resData.data.userId
+          userId: resData.data.login.userId
         });
-        localStorage.setItem('token', resData.token);
-        localStorage.setItem('userId', resData.userId);
+        localStorage.setItem('token', resData.data.login.token);
+        localStorage.setItem('userId', resData.data.login.userId);
         const remainingMilliseconds = 60 * 60 * 1000;
         const expiryDate = new Date(
           new Date().getTime() + remainingMilliseconds
@@ -130,7 +130,7 @@ class App extends Component {
           }
         }
       `,
-        variables: {
+      variables: {
         email: authData.signupForm.email.value,
         name: authData.signupForm.name.value,
         password: authData.signupForm.password.value
@@ -141,7 +141,7 @@ class App extends Component {
       headers: {
         'Content-Type': 'application/json'
       },
-        body: JSON.stringify(graphqlQuery)
+      body: JSON.stringify(graphqlQuery)
     })
       .then(res => {
         return res.json();
