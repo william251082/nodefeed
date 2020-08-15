@@ -144,4 +144,25 @@ export default {
       totalPosts
     };
   },
+    post: async function({ id }: any, req: IObjectExtend) {
+    if (!req.isAuth) {
+      const error: IObjectExtend = new Error('Not authenticated!');
+      error.code = 401;
+      throw error;
+    }
+    const post = await Feed.findById(id).populate('creator');
+    if (!post) {
+      const error:IObjectExtend = new Error('No post found!');
+      error.code = 404;
+      throw error;
+    }
+    let post_doc: any;
+    post_doc = post;
+    return {
+      ...post,
+      _id: post._id.toString(),
+      createdAt: post_doc.createdAt.toISOString(),
+      updatedAt: post_doc.updatedAt.toISOString()
+    };
+  },
 };
