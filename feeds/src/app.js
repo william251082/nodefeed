@@ -58,6 +58,7 @@ var schema_1 = __importDefault(require("./graphql/schema"));
 // @ts-ignore
 var resolvers_1 = __importDefault(require("./graphql/resolvers"));
 var auth_1 = __importDefault(require("./middleware/auth"));
+var file_1 = require("./util/file");
 var app = express_1.default();
 exports.app = app;
 var storage = multer_1.default.diskStorage({
@@ -92,6 +93,20 @@ app.use(function (req, res, next) {
     next();
 });
 app.use(auth_1.default);
+app.put('/post-image', function (req, res) {
+    if (!req.isAuth) {
+        throw new Error('Not authenticated!');
+    }
+    if (!req.file) {
+        return res.status(200).json({ message: 'No file provided!' });
+    }
+    if (req.body.oldPath) {
+        file_1.clearImage(req.body.oldPath);
+    }
+    return res
+        .status(201)
+        .json({ message: 'File stored.', filePath: req.file.path });
+});
 // @ts-ignore
 app.use('/graphql', express_graphql_1.graphqlHTTP({
     schema: schema_1.default,
