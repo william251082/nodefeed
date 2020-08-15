@@ -13,3 +13,21 @@ mutation {
     email
   }
 }
+mutation {
+  createPost(postInput: {
+    title: "hihicom", content:"attyigukmjgbf", imageUrl: "tester"
+  })
+  {
+    _id
+    title
+  }
+}
+{
+  login(
+    "email": "hi@hi.com";
+    "password": "password"
+    ) {
+  token
+  userId
+  }
+}

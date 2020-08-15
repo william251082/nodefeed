@@ -25,10 +25,21 @@ export default buildSchema(`
         userId: String!
     }
     
+    type PostData {
+        posts: [Post!]!
+        totalPosts: Int!
+    }
+    
     input UserInputData {
         email: String!
         name: String!
         password: String!
+    }
+    
+    input PostInputData {
+        title: String!
+        content: String!
+        imageUrl: String!
     }
     
     type RootQuery {
@@ -37,6 +48,7 @@ export default buildSchema(`
     
     type RootMutation {
         createUser(userInput: UserInputData): User!
+        createPost(postInput: PostInputData): Post!
     }
     schema {
         query: RootQuery
