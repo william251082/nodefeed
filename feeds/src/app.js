@@ -57,6 +57,7 @@ var express_graphql_1 = require("express-graphql");
 var schema_1 = __importDefault(require("./graphql/schema"));
 // @ts-ignore
 var resolvers_1 = __importDefault(require("./graphql/resolvers"));
+var auth_1 = __importDefault(require("./middleware/auth"));
 var app = express_1.default();
 exports.app = app;
 var storage = multer_1.default.diskStorage({
@@ -90,6 +91,7 @@ app.use(function (req, res, next) {
     }
     next();
 });
+app.use(auth_1.default);
 // @ts-ignore
 app.use('/graphql', express_graphql_1.graphqlHTTP({
     schema: schema_1.default,

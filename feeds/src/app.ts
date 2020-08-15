@@ -10,6 +10,7 @@ import { graphqlHTTP } from "express-graphql";
 import graphqlSchema from "./graphql/schema";
 // @ts-ignore
 import graphqlResolver from './graphql/resolvers';
+import auth from "./middleware/auth";
 
 const app = express();
 
@@ -54,6 +55,8 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+app.use(auth);
 
 // @ts-ignore
 app.use('/graphql', graphqlHTTP({
