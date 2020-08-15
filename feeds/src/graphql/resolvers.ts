@@ -245,4 +245,34 @@ export default {
     await user_doc.save();
     return true;
   },
+   user: async function(args: any, req: IObjectExtend) {
+    if (!req.isAuth) {
+      const error: IObjectExtend = new Error('Not authenticated!');
+      error.code = 401;
+      throw error;
+    }
+    const user = await User.findById(req.userId);
+    if (!user) {
+      const error: IObjectExtend = new Error('No user found!');
+      error.code = 404;
+      throw error;
+    }
+    return { ...user, _id: user._id.toString() };
+  },
+  updateStatus: async function({ status }: any, req: IObjectExtend) {
+    if (!req.isAuth) {
+      const error: IObjectExtend = new Error('Not authenticated!');
+      error.code = 401;
+      throw error;
+    }
+    const user = await User.findById(req.userId);
+    if (!user) {
+      const error: IObjectExtend = new Error('No user found!');
+      error.code = 404;
+      throw error;
+    }
+    user.status = status;
+    await user.save();
+    return { ...user, _id: user._id.toString() };
+  }
 };
