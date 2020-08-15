@@ -31,3 +31,13 @@ mutation {
   userId
   }
 }
+query {
+    posts {
+        posts {
+            _id
+            title
+            content
+        }
+    }
+    totalPosts
+}
