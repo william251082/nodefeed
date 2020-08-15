@@ -5,6 +5,7 @@ import validator from "validator";
 import bcrypt from "bcryptjs";
 import {IObjectExtend} from "../controllers/feed";
 import {Request} from "express";
+import jwt from 'jsonwebtoken';
 
 export default {
     createUser: async function({ userInput }: any, req: Request) {
@@ -37,5 +38,28 @@ export default {
     });
     const createdUser = await user.save();
     return { ...createdUser, _id: createdUser._id.toString() };
+  },
+    login: async function({ email, password }: any) {
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      const error: IObjectExtend = new Error('User not found.');
+      error.code = 401;
+      throw error;
+    }
+    const isEqual = await bcrypt.compare(password, user.password);
+    if (!isEqual) {
+      const error: IObjectExtend = new Error('Password is incorrect.');
+      error.code = 401;
+      throw error;
+    }
+    const token = jwt.sign(
+      {
+        userId: user._id.toString(),
+        email: user.email
+      },
+      'somesupersecretsecret',
+      { expiresIn: '1h' }
+    );
+    return { token: token, userId: user._id.toString() };
   }
 };
